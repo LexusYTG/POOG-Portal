@@ -1,189 +1,347 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>POOG Store - J2ME Android Ports</title>
-    <style>
-        :root {
-            --bg-main: #0d1117; --bg-panel: #161b22; --bg-card: #21262d;
-            --text-main: #c9d1d9; --text-muted: #8b949e; --primary: #58a6ff;
-            --accent: #238636; --border: #30363d;
-        }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; }
-        body { background-color: var(--bg-main); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>POOG Store</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #14161f; --panel: #1d2030; --panel-2: #262a3e; --line: #343955;
+    --text: #ece9f4; --muted: #9a9db5; --accent: #ffb43b; --accent-ink: #231a05;
+    --danger: #ff7a7a;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: "Bricolage Grotesque", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    min-height: 100vh; line-height: 1.45;
+  }
+  button { font: inherit; color: inherit; cursor: pointer; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
-        /* Sidebar */
-        .sidebar { width: 260px; background-color: var(--bg-panel); border-right: 1px solid var(--border); padding: 20px; overflow-y: auto; flex-shrink: 0; }
-        .sidebar h2 { font-size: 1.2rem; margin-bottom: 15px; color: #fff; text-transform: uppercase; letter-spacing: 1px; }
-        .vendor-btn { display: block; width: 100%; text-align: left; background: none; border: none; color: var(--text-muted); padding: 10px 15px; margin-bottom: 5px; border-radius: 6px; cursor: pointer; font-size: 1rem; transition: all 0.2s; }
-        .vendor-btn:hover, .vendor-btn.active { background-color: var(--bg-card); color: var(--primary); font-weight: bold; }
+  /* Barra superior */
+  .top {
+    position: sticky; top: 0; z-index: 10;
+    background: var(--bg); border-bottom: 1px solid var(--line);
+    padding: 14px 20px 10px;
+  }
+  .top-inner { max-width: 1200px; margin: 0 auto; }
+  .row-main { display: flex; align-items: center; gap: 16px; }
+  .brand { font-weight: 800; font-size: 1.35rem; letter-spacing: -0.02em; white-space: nowrap; }
+  .brand small { font-weight: 400; color: var(--muted); font-size: .8rem; margin-left: 6px; }
+  .search { position: relative; flex: 1; }
+  .search input {
+    width: 100%; padding: 12px 40px 12px 16px; border-radius: 10px;
+    border: 1px solid var(--line); background: var(--panel); color: var(--text);
+    font: inherit; font-size: 1rem;
+  }
+  .search input::placeholder { color: var(--muted); }
+  .search input:focus { outline: none; border-color: var(--accent); }
+  .clear-x {
+    position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+    background: none; border: 0; color: var(--muted); font-size: 1.2rem; padding: 4px 8px; display: none;
+  }
+  .search.has-text .clear-x { display: block; }
 
-        /* Main Content */
-        .main-content { flex-grow: 1; display: flex; flex-direction: column; height: 100%; }
-        .top-bar { padding: 20px; background-color: var(--bg-main); border-bottom: 1px solid var(--border); }
-        .search-input { width: 100%; padding: 12px 20px; border-radius: 8px; border: 1px solid var(--border); background-color: var(--bg-panel); color: var(--text-main); font-size: 1rem; outline: none; transition: border-color 0.2s; }
-        .search-input:focus { border-color: var(--primary); }
-        .catalog { padding: 20px; overflow-y: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; align-content: start; }
+  .filters { margin-top: 10px; display: flex; flex-direction: column; gap: 6px; }
+  .group { display: flex; align-items: center; gap: 10px; }
+  .group-name { flex: 0 0 96px; font-size: .8rem; color: var(--muted); }
+  .chips { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; padding: 2px 0; }
+  .chips::-webkit-scrollbar { display: none; }
+  .chip {
+    flex: 0 0 auto; padding: 5px 12px; border-radius: 999px; font-size: .85rem;
+    background: var(--panel); border: 1px solid var(--line); color: var(--muted);
+    transition: background .15s, color .15s, border-color .15s;
+  }
+  .chip:hover { color: var(--text); border-color: var(--muted); }
+  .chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 600; }
 
-        /* Cards */
-        .game-card { background-color: var(--bg-panel); border: 1px solid var(--border); border-radius: 10px; padding: 20px; display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.2s, box-shadow 0.2s; }
-        .game-card:hover { transform: translateY(-5px); box-shadow: 0 8px 24px rgba(0,0,0,0.4); border-color: var(--text-muted); }
-        .game-title { font-size: 1.3rem; color: #fff; margin-bottom: 5px; }
-        .game-vendor { font-size: 0.9rem; color: var(--primary); margin-bottom: 15px; font-weight: bold; }
-        .game-details { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px; line-height: 1.5; }
-        .game-details span { display: block; margin-bottom: 3px; }
-        .btn-download { display: block; text-align: center; background-color: var(--accent); color: white; text-decoration: none; padding: 10px; border-radius: 6px; font-weight: bold; transition: background-color 0.2s; }
-        .btn-download:hover { background-color: #2ea043; }
-        
-        #loader { grid-column: 1 / -1; text-align: center; margin-top: 50px; color: var(--text-muted); font-size: 1.2rem; }
+  /* Contenido */
+  main { max-width: 1200px; margin: 0 auto; padding: 20px; }
+  .meta { color: var(--muted); font-size: .9rem; margin-bottom: 14px; display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+  .meta button { background: none; border: 0; color: var(--accent); text-decoration: underline; padding: 0; }
+  .notice { background: var(--panel-2); border-left: 3px solid var(--accent); padding: 10px 14px; border-radius: 6px; font-size: .88rem; margin-bottom: 16px; color: var(--muted); }
 
-        @media (max-width: 768px) {
-            body { flex-direction: column; }
-            .sidebar { width: 100%; height: auto; border-right: none; border-bottom: 1px solid var(--border); display: flex; overflow-x: auto; white-space: nowrap; padding: 10px; }
-            .sidebar h2 { display: none; }
-            .vendor-btn { display: inline-block; width: auto; margin-right: 5px; margin-bottom: 0; }
-            .catalog { grid-template-columns: 1fr; }
-        }
-    </style>
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 18px; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; }
+  .cover {
+    height: 92px; display: flex; align-items: flex-end; padding: 12px 16px;
+    background: var(--c1);
+    background-image: linear-gradient(135deg, var(--c1), var(--c2));
+  }
+  .cover h2 { font-size: 1.3rem; font-weight: 800; letter-spacing: -0.01em; color: #fff; text-shadow: 0 1px 6px rgba(0,0,0,.35); line-height: 1.15; }
+  .body { padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 14px; flex: 1; }
+  dl { display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; font-size: .9rem; }
+  dt { color: var(--muted); }
+  dd { text-align: right; }
+  dd button {
+    background: none; border: 0; padding: 0; text-align: right; text-decoration: underline;
+    text-decoration-color: var(--line); text-underline-offset: 3px;
+  }
+  dd button:hover { text-decoration-color: var(--accent); color: var(--accent); }
+  .dl-btn {
+    margin-top: auto; width: 100%; padding: 11px; border-radius: 9px; border: 0;
+    background: var(--accent); color: var(--accent-ink); font-weight: 800; font-size: 1rem;
+    transition: transform .1s, filter .15s;
+  }
+  .dl-btn:hover { filter: brightness(1.08); }
+  .dl-btn:active { transform: scale(.98); }
+  .dl-btn.done { background: var(--panel-2); color: var(--text); }
+
+  .state { grid-column: 1 / -1; text-align: center; color: var(--muted); padding: 60px 10px; }
+  .state.err { color: var(--danger); }
+
+  @media (max-width: 700px) {
+    .top { padding: 10px 12px 8px; }
+    .row-main { flex-direction: column; align-items: stretch; gap: 8px; }
+    .brand small { display: none; }
+    .group-name { flex-basis: 74px; }
+    main { padding: 14px 12px; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
+</style>
 </head>
 <body>
 
-    <div class="sidebar">
-        <h2>Vendors</h2>
-        <div id="vendor-list"></div>
+<header class="top">
+  <div class="top-inner">
+    <div class="row-main">
+      <div class="brand">POOG Store<small>J2ME → Android</small></div>
+      <div class="search" id="search-box">
+        <input id="q" type="search" placeholder="Buscar por nombre, desarrollador, año…" autocomplete="off" aria-label="Buscar juegos">
+        <button class="clear-x" id="clear-x" aria-label="Borrar búsqueda">×</button>
+      </div>
     </div>
+    <div class="filters" id="filters"></div>
+  </div>
+</header>
 
-    <div class="main-content">
-        <div class="top-bar">
-            <input type="text" id="search-input" class="search-input" placeholder="🔍 Search games by name...">
-        </div>
-        <div class="catalog" id="catalog">
-            <div id="loader">Loading catalog from GitFlic...</div>
-        </div>
-    </div>
+<main>
+  <div id="notice"></div>
+  <div class="meta"><span id="count"></span><button id="reset" hidden>Quitar filtros</button></div>
+  <div class="grid" id="grid"><div class="state">Cargando catálogo…</div></div>
+</main>
 
-    <script>
-        let allGames = [];
-        let currentVendor = "All";
-        let currentSearch = "";
+<script>
+/* ============ CONFIGURACIÓN ============ */
+const SOURCES = [
+  "https://gitflic.ru/project/lexusytg/poog/blob/raw?file=releases.md&branch=main",
+  "https://api.gitflic.ru/project/lexusytg/poog/blob?commitHash=main&file=releases.md",
+];
+// Proxies CORS por si GitFlic bloquea la petición directa desde GitHub Pages
+const PROXIES = [
+  u => "https://corsproxy.io/?" + encodeURIComponent(u),
+  u => "https://api.allorigins.win/raw?url=" + encodeURIComponent(u),
+];
+// Campo del markdown -> clave interna
+const FIELDS = {
+  "original developer": "vendor", "desarrollador original": "vendor",
+  "release year": "year", "año": "year",
+  "platform": "platform", "plataforma": "platform",
+  "status": "status", "estado": "status",
+};
+// Grupos de filtro (etiquetas)
+const GROUPS = [
+  { key: "vendor",   label: "Desarrollador" },
+  { key: "year",     label: "Año" },
+  { key: "platform", label: "Plataforma" },
+  { key: "status",   label: "Estado" },
+];
+// Copia local, se usa solo si no se puede leer releases.md
+const FALLBACK = `
+### 1. Diamond Rush
+*   **Original Developer:** Gameloft
+*   **Release Year:** 2006
+*   **Platform:** Java ME (J2ME)
+*   **Status:** Native Android Port
+*   **Download:** [📥 Download APK](https://gitflic.ru/project/lexusytg/poog/blob/raw?file=1-Diamond-Rush/release/Diamond-Rush-debug.apk&inline=false)
+### 2. Rally 3D
+*   **Original Developer:** Nokia
+*   **Release Year:** 2006
+*   **Platform:** Java ME (J2ME) / M3G
+*   **Status:** Native Android Port
+*   **Download:** [📥 Download APK](https://gitflic.ru/project/lexusytg/poog/blob/raw?file=2-Rally-3D/release/Rally-3D-debug.apk&inline=false)
+### 3. Tower Bloxx: My City
+*   **Original Developer:** Digital Chocolate
+*   **Release Year:** 2006
+*   **Platform:** Java ME (J2ME)
+*   **Status:** Native Android Port
+*   **Download:** [📥 Download APK](https://gitflic.ru/project/lexusytg/poog/blob/raw?file=3-Tower-Bloxx-My-City/release/Tower-Bloxx-My-City-debug.apk&inline=false)
+### 4. Crazy Penguin Catapult
+*   **Original Developer:** Connect2Media
+*   **Release Year:** 2008
+*   **Platform:** Java ME (J2ME)
+*   **Status:** Native Android Port
+*   **Download:** [📥 Download APK](https://gitflic.ru/project/lexusytg/poog/blob/raw?file=4-Crazy-Penguim-Catapult/release/Crazy-Penguim-Catapult-debug.apk&inline=false)
+### 5. Bounce Tales
+*   **Original Developer:** Rovio Mobile (Nokia)
+*   **Release Year:** 2008
+*   **Platform:** Java ME (J2ME)
+*   **Status:** Native Android Port
+*   **Download:** [📥 Download APK](https://gitflic.ru/project/lexusytg/poog/blob/raw?file=5-Bounce-Tales/release/Bounce-Tales-debug.apk&inline=false)
+`;
 
-        const vendorList = document.getElementById("vendor-list");
-        const catalog = document.getElementById("catalog");
-        const searchInput = document.getElementById("search-input");
+/* ============ ESTADO ============ */
+let games = [];
+const active = {};            // { vendor: "Nokia", year: "2006", ... }
+let query = "";
 
-        // URL de la API de GitFlic para leer el archivo
-        const RELEASES_URL = "https://api.gitflic.ru/project/lexusytg/poog/blob?commitHash=main&file=releases.md";
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+const norm = s => String(s).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
-        function parseMarkdown(md) {
-            const games = [];
-            const gameRegex = /###\s*\d+\.\s*(.*?)\n\s*\*\s*\*\*Original Developer:\*\*\s*(.*?)\n\s*\*\s*\*\*Release Year:\*\*\s*(.*?)\n\s*\*\s*\*\*Platform:\*\*\s*(.*?)\n[\s\S]*?\[.*?\]\((.*?)\)/g;
-            
-            let match;
-            while ((match = gameRegex.exec(md)) !== null) {
-                games.push({
-                    title: match[1].trim(),
-                    vendor: match[2].trim(),
-                    year: match[3].trim(),
-                    platform: match[4].trim(),
-                    url: match[5].trim()
-                });
-            }
-            return games;
-        }
+/* ============ PARSEO ============ */
+function parse(md) {
+  const out = [];
+  md.split(/^###\s+/m).slice(1).forEach(block => {
+    const lines = block.split("\n");
+    const title = lines[0].replace(/^\d+\.\s*/, "").trim();
+    if (!title) return;
+    const g = { title, vendor: "", year: "", platform: "", status: "", url: "" };
+    for (const line of lines.slice(1)) {
+      const m = line.match(/^\s*[*-]\s*\*\*(.+?):\*\*\s*(.*)$/);
+      if (!m) continue;
+      const name = m[1].trim().toLowerCase();
+      if (FIELDS[name]) g[FIELDS[name]] = m[2].trim();
+      else if (name === "download" || name === "descarga") {
+        const l = m[2].match(/\]\((.+?)\)/);
+        if (l) g.url = l[1].trim();
+      }
+    }
+    if (g.url) out.push(g);
+  });
+  return out;
+}
 
-        async function fetchCatalog() {
-            try {
-                // Fetch directo a la API
-                let response = await fetch(RELEASES_URL);
-                
-                // Fallback por si la API bloquea CORS
-                if (!response.ok) {
-                    console.log("Direct fetch failed, trying CORS proxy...");
-                    response = await fetch(`https://corsproxy.io/?${encodeURIComponent(RELEASES_URL)}`);
-                }
+/* ============ CARGA ============ */
+async function tryFetch(url) {
+  const ctl = new AbortController();
+  const t = setTimeout(() => ctl.abort(), 8000);
+  try {
+    const r = await fetch(url, { signal: ctl.signal });
+    if (!r.ok) throw new Error(r.status);
+    return await r.text();
+  } finally { clearTimeout(t); }
+}
 
-                if (!response.ok) throw new Error("Network response was not ok");
-                
-                const markdown = await response.text();
-                allGames = parseMarkdown(markdown);
-                
-                if (allGames.length === 0) {
-                    catalog.innerHTML = `<p style="grid-column: 1 / -1; text-align: center;">Error: Could not parse games. Check the Markdown format in releases.md.</p>`;
-                    return;
-                }
+async function load() {
+  const attempts = [];
+  SOURCES.forEach(s => { attempts.push(s); PROXIES.forEach(p => attempts.push(p(s))); });
+  for (const url of attempts) {
+    try {
+      const list = parse(await tryFetch(url));
+      if (list.length) return { list, live: true };
+    } catch (e) { /* siguiente intento */ }
+  }
+  return { list: parse(FALLBACK), live: false };
+}
 
-                initVendors();
-                renderGames();
+/* ============ FILTROS ============ */
+function buildFilters() {
+  const box = $("filters");
+  box.innerHTML = "";
+  GROUPS.forEach(({ key, label }) => {
+    const values = [...new Set(games.map(g => g[key]).filter(Boolean))].sort();
+    if (values.length < 2) return;       // un grupo con un solo valor no filtra nada
+    const row = document.createElement("div");
+    row.className = "group";
+    row.innerHTML = `<span class="group-name">${label}</span><div class="chips" role="group" aria-label="${label}"></div>`;
+    const chips = row.querySelector(".chips");
+    values.forEach(v => {
+      const b = document.createElement("button");
+      b.className = "chip"; b.textContent = v;
+      b.dataset.key = key; b.dataset.value = v;
+      b.setAttribute("aria-pressed", "false");
+      chips.appendChild(b);
+    });
+    box.appendChild(row);
+  });
+}
 
-            } catch (error) {
-                console.error("Error fetching catalog:", error);
-                catalog.innerHTML = `<p style="grid-column: 1 / -1; text-align: center; color: #f85149;">Failed to load catalog. The GitFlic API might be down or the URL is incorrect.</p>`;
-            }
-        }
+function toggleFilter(key, value) {
+  if (active[key] === value) delete active[key]; else active[key] = value;
+  render();
+}
 
-        function initVendors() {
-            vendorList.innerHTML = "";
-            const vendors = ["All", ...new Set(allGames.map(g => g.vendor))];
-            
-            vendors.forEach(vendor => {
-                const btn = document.createElement("button");
-                btn.className = `vendor-btn ${vendor === currentVendor ? 'active' : ''}`;
-                btn.textContent = vendor;
-                btn.onclick = () => {
-                    currentVendor = vendor;
-                    updateUI();
-                };
-                vendorList.appendChild(btn);
-            });
-        }
+/* ============ RENDER ============ */
+function hue(str) { let h = 0; for (const c of str) h = (h * 31 + c.charCodeAt(0)) % 360; return h; }
 
-        function renderGames() {
-            catalog.innerHTML = "";
-            
-            const filteredGames = allGames.filter(game => {
-                const matchesVendor = currentVendor === "All" || game.vendor === currentVendor;
-                const matchesSearch = game.title.toLowerCase().includes(currentSearch.toLowerCase());
-                return matchesVendor && matchesSearch;
-            });
+function render() {
+  // chips
+  document.querySelectorAll(".chip").forEach(c =>
+    c.setAttribute("aria-pressed", active[c.dataset.key] === c.dataset.value));
 
-            if (filteredGames.length === 0) {
-                catalog.innerHTML = `<p style="color: var(--text-muted); grid-column: 1 / -1; text-align: center; margin-top: 50px;">No games found.</p>`;
-                return;
-            }
+  const q = norm(query.trim());
+  const shown = games.filter(g =>
+    Object.entries(active).every(([k, v]) => g[k] === v) &&
+    (!q || norm([g.title, g.vendor, g.year, g.platform, g.status].join(" ")).includes(q)));
 
-            filteredGames.forEach(game => {
-                const card = document.createElement("div");
-                card.className = "game-card";
-                card.innerHTML = `
-                    <div>
-                        <div class="game-title">${game.title}</div>
-                        <div class="game-vendor">${game.vendor}</div>
-                        <div class="game-details">
-                            <span><strong>Year:</strong> ${game.year}</span>
-                            <span><strong>Platform:</strong> ${game.platform}</span>
-                            <span><strong>Status:</strong> Native Android Port</span>
-                        </div>
-                    </div>
-                    <a href="${game.url}" target="_blank" class="btn-download">📥 Download APK</a>
-                `;
-                catalog.appendChild(card);
-            });
-        }
+  const hasFilters = Object.keys(active).length || q;
+  $("reset").hidden = !hasFilters;
+  $("count").textContent = `${shown.length} de ${games.length} juegos`;
 
-        function updateUI() {
-            Array.from(vendorList.children).forEach(btn => {
-                btn.classList.toggle("active", btn.textContent === currentVendor);
-            });
-            renderGames();
-        }
+  const grid = $("grid");
+  if (!shown.length) {
+    grid.innerHTML = `<div class="state">No hay juegos con esos filtros. Prueba a quitar alguno.</div>`;
+    return;
+  }
+  grid.innerHTML = shown.map(g => {
+    const i = games.indexOf(g), h = hue(g.title);
+    const rows = [["Desarrollador", "vendor"], ["Año", "year"], ["Plataforma", "platform"], ["Estado", "status"]]
+      .filter(([, k]) => g[k])
+      .map(([l, k]) => `<dt>${l}</dt><dd><button data-key="${k}" data-value="${esc(g[k])}" title="Filtrar por ${esc(g[k])}">${esc(g[k])}</button></dd>`)
+      .join("");
+    return `<article class="card">
+      <div class="cover" style="--c1:hsl(${h} 45% 32%);--c2:hsl(${(h + 50) % 360} 50% 22%)"><h2>${esc(g.title)}</h2></div>
+      <div class="body">
+        <dl>${rows}</dl>
+        <button class="dl-btn" data-dl="${i}">Descargar</button>
+      </div>
+    </article>`;
+  }).join("");
+}
 
-        searchInput.addEventListener("input", (e) => {
-            currentSearch = e.target.value;
-            renderGames();
-        });
+/* ============ EVENTOS ============ */
+document.addEventListener("click", e => {
+  const chip = e.target.closest(".chip");
+  if (chip) return toggleFilter(chip.dataset.key, chip.dataset.value);
 
-        fetchCatalog();
-    </script>
+  const link = e.target.closest("dd button");
+  if (link) return toggleFilter(link.dataset.key, link.dataset.value);
+
+  const dl = e.target.closest("[data-dl]");
+  if (dl) {
+    const g = games[+dl.dataset.dl];
+    window.open(g.url, "_blank", "noopener");     // el enlace nunca aparece en el HTML
+    dl.textContent = "Descarga iniciada"; dl.classList.add("done");
+    setTimeout(() => { dl.textContent = "Descargar"; dl.classList.remove("done"); }, 2500);
+  }
+});
+
+$("q").addEventListener("input", e => {
+  query = e.target.value;
+  $("search-box").classList.toggle("has-text", !!query);
+  render();
+});
+$("clear-x").addEventListener("click", () => { $("q").value = ""; query = ""; $("search-box").classList.remove("has-text"); $("q").focus(); render(); });
+$("reset").addEventListener("click", () => {
+  Object.keys(active).forEach(k => delete active[k]);
+  $("q").value = ""; query = ""; $("search-box").classList.remove("has-text"); render();
+});
+
+/* ============ INICIO ============ */
+load().then(({ list, live }) => {
+  games = list;
+  if (!live) $("notice").innerHTML = `<div class="notice">No se pudo leer releases.md de GitFlic desde el navegador; se muestra la copia incluida en esta página.</div>`;
+  buildFilters();
+  render();
+}).catch(() => {
+  $("grid").innerHTML = `<div class="state err">No se pudo cargar el catálogo. Recarga la página.</div>`;
+});
+</script>
 </body>
 </html>
