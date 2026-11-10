@@ -72,8 +72,8 @@
         const catalog = document.getElementById("catalog");
         const searchInput = document.getElementById("search-input");
 
-        // URL directa al archivo releases.md
-        const RELEASES_URL = "https://gitflic.ru/project/lexusytg/poog/blob/raw?file=releases.md&inline=false";
+        // URL de la API de GitFlic para leer el archivo
+        const RELEASES_URL = "https://api.gitflic.ru/project/lexusytg/poog/blob?commitHash=main&file=releases.md";
 
         function parseMarkdown(md) {
             const games = [];
@@ -94,10 +94,10 @@
 
         async function fetchCatalog() {
             try {
-                // Intentar fetch directo
+                // Fetch directo a la API
                 let response = await fetch(RELEASES_URL);
                 
-                // Si falla por CORS, usar un proxy
+                // Fallback por si la API bloquea CORS
                 if (!response.ok) {
                     console.log("Direct fetch failed, trying CORS proxy...");
                     response = await fetch(`https://corsproxy.io/?${encodeURIComponent(RELEASES_URL)}`);
@@ -118,7 +118,7 @@
 
             } catch (error) {
                 console.error("Error fetching catalog:", error);
-                catalog.innerHTML = `<p style="grid-column: 1 / -1; text-align: center; color: #f85149;">Failed to load catalog. Check if the GitFlic repo is public.</p>`;
+                catalog.innerHTML = `<p style="grid-column: 1 / -1; text-align: center; color: #f85149;">Failed to load catalog. The GitFlic API might be down or the URL is incorrect.</p>`;
             }
         }
 
