@@ -15,119 +15,35 @@
             --accent: #238636;
             --border: #30363d;
         }
-
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; }
-
         body { background-color: var(--bg-main); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
 
-        /* --- Sidebar --- */
-        .sidebar {
-            width: 260px;
-            background-color: var(--bg-panel);
-            border-right: 1px solid var(--border);
-            padding: 20px;
-            overflow-y: auto;
-            flex-shrink: 0;
-        }
-
+        /* Sidebar */
+        .sidebar { width: 260px; background-color: var(--bg-panel); border-right: 1px solid var(--border); padding: 20px; overflow-y: auto; flex-shrink: 0; }
         .sidebar h2 { font-size: 1.2rem; margin-bottom: 15px; color: #fff; text-transform: uppercase; letter-spacing: 1px; }
-        
-        .vendor-btn {
-            display: block;
-            width: 100%;
-            text-align: left;
-            background: none;
-            border: none;
-            color: var(--text-muted);
-            padding: 10px 15px;
-            margin-bottom: 5px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 1rem;
-            transition: all 0.2s;
-        }
+        .vendor-btn { display: block; width: 100%; text-align: left; background: none; border: none; color: var(--text-muted); padding: 10px 15px; margin-bottom: 5px; border-radius: 6px; cursor: pointer; font-size: 1rem; transition: all 0.2s; }
+        .vendor-btn:hover, .vendor-btn.active { background-color: var(--bg-card); color: var(--primary); font-weight: bold; }
 
-        .vendor-btn:hover, .vendor-btn.active {
-            background-color: var(--bg-card);
-            color: var(--primary);
-            font-weight: bold;
-        }
-
-        /* --- Main Content --- */
-        .main-content {
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-        }
-
-        .top-bar {
-            padding: 20px;
-            background-color: var(--bg-main);
-            border-bottom: 1px solid var(--border);
-        }
-
-        .search-input {
-            width: 100%;
-            padding: 12px 20px;
-            border-radius: 8px;
-            border: 1px solid var(--border);
-            background-color: var(--bg-panel);
-            color: var(--text-main);
-            font-size: 1rem;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-
+        /* Main Content */
+        .main-content { flex-grow: 1; display: flex; flex-direction: column; height: 100%; }
+        .top-bar { padding: 20px; background-color: var(--bg-main); border-bottom: 1px solid var(--border); }
+        .search-input { width: 100%; padding: 12px 20px; border-radius: 8px; border: 1px solid var(--border); background-color: var(--bg-panel); color: var(--text-main); font-size: 1rem; outline: none; transition: border-color 0.2s; }
         .search-input:focus { border-color: var(--primary); }
+        .catalog { padding: 20px; overflow-y: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; align-content: start; }
 
-        .catalog {
-            padding: 20px;
-            overflow-y: auto;
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
-            align-content: start;
-        }
-
-        /* --- Cards --- */
-        .game-card {
-            background-color: var(--bg-panel);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-
-        .game-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
-            border-color: var(--text-muted);
-        }
-
+        /* Cards */
+        .game-card { background-color: var(--bg-panel); border: 1px solid var(--border); border-radius: 10px; padding: 20px; display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.2s, box-shadow 0.2s; }
+        .game-card:hover { transform: translateY(-5px); box-shadow: 0 8px 24px rgba(0,0,0,0.4); border-color: var(--text-muted); }
         .game-title { font-size: 1.3rem; color: #fff; margin-bottom: 5px; }
         .game-vendor { font-size: 0.9rem; color: var(--primary); margin-bottom: 15px; font-weight: bold; }
         .game-details { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px; line-height: 1.5; }
         .game-details span { display: block; margin-bottom: 3px; }
-
-        .btn-download {
-            display: block;
-            text-align: center;
-            background-color: var(--accent);
-            color: white;
-            text-decoration: none;
-            padding: 10px;
-            border-radius: 6px;
-            font-weight: bold;
-            transition: background-color 0.2s;
-        }
-
+        .btn-download { display: block; text-align: center; background-color: var(--accent); color: white; text-decoration: none; padding: 10px; border-radius: 6px; font-weight: bold; transition: background-color 0.2s; }
         .btn-download:hover { background-color: #2ea043; }
+        
+        /* Loader */
+        #loader { grid-column: 1 / -1; text-align: center; margin-top: 50px; color: var(--text-muted); font-size: 1.2rem; }
 
-        /* --- Mobile Responsive --- */
         @media (max-width: 768px) {
             body { flex-direction: column; }
             .sidebar { width: 100%; height: auto; border-right: none; border-bottom: 1px solid var(--border); display: flex; overflow-x: auto; white-space: nowrap; padding: 10px; }
@@ -139,45 +55,77 @@
 </head>
 <body>
 
-    <!-- Sidebar -->
     <div class="sidebar">
         <h2>Vendors</h2>
-        <div id="vendor-list">
-            <!-- Los botones se generan con JS -->
-        </div>
+        <div id="vendor-list"></div>
     </div>
 
-    <!-- Main Content -->
     <div class="main-content">
         <div class="top-bar">
             <input type="text" id="search-input" class="search-input" placeholder="🔍 Search games by name...">
         </div>
         <div class="catalog" id="catalog">
-            <!-- Las tarjetas se generan con JS -->
+            <div id="loader">Loading catalog from GitFlic...</div>
         </div>
     </div>
 
     <script>
-        // Base de datos de los juegos (Fácil de actualizar)
-        const games = [
-            { id: "1", title: "Diamond Rush", vendor: "Gameloft", year: "2006", platform: "J2ME", url: "https://gitflic.ru/project/lexusytg/poog/blob/raw?file=1-Diamond-Rush/release/Diamond-Rush-debug.apk&inline=false" },
-            { id: "2", title: "Rally 3D", vendor: "Nokia", year: "2006", platform: "J2ME / M3G", url: "https://gitflic.ru/project/lexusytg/poog/blob/raw?file=2-Rally-3D/release/Rally-3D-debug.apk&inline=false" },
-            { id: "3", title: "Tower Bloxx: My City", vendor: "Digital Chocolate", year: "2006", platform: "J2ME", url: "https://gitflic.ru/project/lexusytg/poog/blob/raw?file=3-Tower-Bloxx-My-City/release/Tower-Bloxx-My-City-debug.apk&inline=false" },
-            { id: "4", title: "Crazy Penguin Catapult", vendor: "Connect2Media", year: "2008", platform: "J2ME", url: "https://gitflic.ru/project/lexusytg/poog/blob/raw?file=4-Crazy-Penguim-Catapult/release/Crazy-Penguim-Catapult-debug.apk&inline=false" },
-            { id: "5", title: "Bounce Tales", vendor: "Rovio Mobile", year: "2008", platform: "J2ME", url: "https://gitflic.ru/project/lexusytg/poog/blob/raw?file=5-Bounce-Tales/release/Bounce-Tales-debug.apk&inline=false" }
-        ];
-
+        let allGames = [];
         let currentVendor = "All";
         let currentSearch = "";
 
-        // Referencias al DOM
         const vendorList = document.getElementById("vendor-list");
         const catalog = document.getElementById("catalog");
         const searchInput = document.getElementById("search-input");
 
-        // Función para inicializar los vendors en el menú lateral
+        // URL RAW del archivo releases.md en GitFlic (Asegurate de que sea la correcta)
+        const RELEASES_URL = "https://gitflic.ru/project/lexusytg/poog/blob/raw?file=releases.md&inline=false";
+
+        // Función para parsear el Markdown y extraer los datos
+        function parseMarkdown(md) {
+            const games = [];
+            // Expresión regular para buscar cada bloque de juego
+            const gameRegex = /###\s*\d+\.\s*(.*?)\n\s*\*\s*\*\*Original Developer:\*\*\s*(.*?)\n\s*\*\s*\*\*Release Year:\*\*\s*(.*?)\n\s*\*\s*\*\*Platform:\*\*\s*(.*?)\n[\s\S]*?\[.*?\]\((.*?)\)/g;
+            
+            let match;
+            while ((match = gameRegex.exec(md)) !== null) {
+                games.push({
+                    title: match[1].trim(),
+                    vendor: match[2].trim(),
+                    year: match[3].trim(),
+                    platform: match[4].trim(),
+                    url: match[5].trim()
+                });
+            }
+            return games;
+        }
+
+        // Función para obtener los datos
+        async function fetchCatalog() {
+            try {
+                const response = await fetch(RELEASES_URL);
+                if (!response.ok) throw new Error("Network response was not ok");
+                const markdown = await response.text();
+                
+                allGames = parseMarkdown(markdown);
+                
+                if (allGames.length === 0) {
+                    catalog.innerHTML = `<p style="grid-column: 1 / -1; text-align: center;">Error: Could not parse games. Check the format in releases.md.</p>`;
+                    return;
+                }
+
+                initVendors();
+                renderGames();
+
+            } catch (error) {
+                console.error("Error fetching catalog:", error);
+                catalog.innerHTML = `<p style="grid-column: 1 / -1; text-align: center; color: #f85149;">Failed to load catalog. The GitFlic repository might be private or the URL is incorrect.</p>`;
+            }
+        }
+
         function initVendors() {
-            const vendors = ["All", ...new Set(games.map(g => g.vendor))];
+            vendorList.innerHTML = "";
+            const vendors = ["All", ...new Set(allGames.map(g => g.vendor))];
             
             vendors.forEach(vendor => {
                 const btn = document.createElement("button");
@@ -191,11 +139,10 @@
             });
         }
 
-        // Función para renderizar las tarjetas de juegos
         function renderGames() {
             catalog.innerHTML = "";
             
-            const filteredGames = games.filter(game => {
+            const filteredGames = allGames.filter(game => {
                 const matchesVendor = currentVendor === "All" || game.vendor === currentVendor;
                 const matchesSearch = game.title.toLowerCase().includes(currentSearch.toLowerCase());
                 return matchesVendor && matchesSearch;
@@ -225,24 +172,20 @@
             });
         }
 
-        // Función para actualizar toda la interfaz
         function updateUI() {
-            // Actualizar clase activa en el menú
             Array.from(vendorList.children).forEach(btn => {
                 btn.classList.toggle("active", btn.textContent === currentVendor);
             });
             renderGames();
         }
 
-        // Event listeners
         searchInput.addEventListener("input", (e) => {
             currentSearch = e.target.value;
             renderGames();
         });
 
         // Iniciar
-        initVendors();
-        renderGames();
+        fetchCatalog();
     </script>
 </body>
 </html>
