@@ -3,191 +3,210 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
 <title>POOG Store</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #14161f; --panel: #1d2030; --panel-2: #262a3e; --line: #343955;
-    --text: #ece9f4; --muted: #9a9db5; --accent: #ffb43b; --accent-ink: #231a05;
-    --danger: #ff7a7a;
+    --bg: #f4f5f7; --surface: #ffffff; --line: #e1e5e9;
+    --text: #15181c; --muted: #5f6870;
+    --accent: #0f7b4f; --accent-ink: #ffffff;
+    --tag: #eef1f4; --tag-on: #d7f0e3; --tag-on-ink: #0a5a39;
+    --tile-l: 91%; --tile-fg-l: 28%;
+    --danger: #b3261e;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f1113; --surface: #181b1f; --line: #2a2f35;
+      --text: #e9ecef; --muted: #98a1aa;
+      --accent: #3fcf8e; --accent-ink: #06251a;
+      --tag: #22272d; --tag-on: #153a2b; --tag-on-ink: #7fe3b6;
+      --tile-l: 22%; --tile-fg-l: 78%;
+      --danger: #ff8a80;
+    }
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  html { scroll-behavior: smooth; }
   body {
     background: var(--bg); color: var(--text);
-    font-family: "Bricolage Grotesque", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-    min-height: 100vh; line-height: 1.45;
+    font: 16px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    min-height: 100vh;
   }
-  button { font: inherit; color: inherit; cursor: pointer; }
+  button, select, input { font: inherit; color: inherit; }
+  button { cursor: pointer; }
   :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
-  /* Barra superior */
-  .top {
-    position: sticky; top: 0; z-index: 10;
-    background: var(--bg); border-bottom: 1px solid var(--line);
-    padding: 14px 20px 10px;
-  }
-  .top-inner { max-width: 1200px; margin: 0 auto; }
-  .row-main { display: flex; align-items: center; gap: 16px; }
-  .brand { font-weight: 800; font-size: 1.35rem; letter-spacing: -0.02em; white-space: nowrap; }
-  .brand small { font-weight: 400; color: var(--muted); font-size: .8rem; margin-left: 6px; }
-  .search { position: relative; flex: 1; }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 0 14px; }
+
+  /* Cabecera fija */
+  header { position: sticky; top: 0; z-index: 5; background: var(--bg); padding: 14px 0 10px; border-bottom: 1px solid var(--line); }
+  h1 { font-size: 1.15rem; font-weight: 700; margin-bottom: 10px; }
+  .search { position: relative; }
+  .search svg { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); width: 18px; height: 18px; color: var(--muted); pointer-events: none; }
   .search input {
-    width: 100%; padding: 12px 40px 12px 16px; border-radius: 10px;
-    border: 1px solid var(--line); background: var(--panel); color: var(--text);
-    font: inherit; font-size: 1rem;
+    width: 100%; height: 46px; padding: 0 16px 0 42px; border-radius: 23px;
+    border: 1px solid var(--line); background: var(--surface);
   }
   .search input::placeholder { color: var(--muted); }
   .search input:focus { outline: none; border-color: var(--accent); }
-  .clear-x {
-    position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
-    background: none; border: 0; color: var(--muted); font-size: 1.2rem; padding: 4px 8px; display: none;
-  }
-  .search.has-text .clear-x { display: block; }
 
-  .filters { margin-top: 10px; display: flex; flex-direction: column; gap: 6px; }
-  .group { display: flex; align-items: center; gap: 10px; }
-  .group-name { flex: 0 0 96px; font-size: .8rem; color: var(--muted); }
-  .chips { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; padding: 2px 0; }
-  .chips::-webkit-scrollbar { display: none; }
-  .chip {
-    flex: 0 0 auto; padding: 5px 12px; border-radius: 999px; font-size: .85rem;
-    background: var(--panel); border: 1px solid var(--line); color: var(--muted);
-    transition: background .15s, color .15s, border-color .15s;
+  .filters { display: flex; gap: 8px; margin-top: 10px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
+  .filters::-webkit-scrollbar { display: none; }
+  .filters select {
+    flex: 0 0 auto; height: 34px; padding: 0 30px 0 14px; border-radius: 17px;
+    border: 1px solid var(--line); background-color: var(--surface); font-size: .88rem;
+    appearance: none; -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' fill='none' stroke='%238a939c' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 11px center;
   }
-  .chip:hover { color: var(--text); border-color: var(--muted); }
-  .chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 600; }
+  .filters select.on { background-color: var(--tag-on); border-color: transparent; color: var(--tag-on-ink); font-weight: 600; }
+  .filters .clear { flex: 0 0 auto; height: 34px; padding: 0 10px; background: none; border: 0; color: var(--accent); font-size: .88rem; }
 
-  /* Contenido */
-  main { max-width: 1200px; margin: 0 auto; padding: 20px; }
-  .meta { color: var(--muted); font-size: .9rem; margin-bottom: 14px; display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
-  .meta button { background: none; border: 0; color: var(--accent); text-decoration: underline; padding: 0; }
-  .notice { background: var(--panel-2); border-left: 3px solid var(--accent); padding: 10px 14px; border-radius: 6px; font-size: .88rem; margin-bottom: 16px; color: var(--muted); }
+  /* Lista */
+  main { padding: 14px 0 100px; }
+  .count { font-size: .85rem; color: var(--muted); margin-bottom: 10px; }
+  .list { display: flex; flex-direction: column; gap: 10px; }
+  .app {
+    display: grid; grid-template-columns: 56px 1fr; gap: 6px 14px; align-items: start;
+    background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 14px;
+  }
+  .tile {
+    width: 56px; height: 56px; border-radius: 14px; display: grid; place-items: center;
+    font-size: 1.5rem; font-weight: 700;
+    background: hsl(var(--h) 55% var(--tile-l)); color: hsl(var(--h) 50% var(--tile-fg-l));
+  }
+  .app h2 { font-size: 1.05rem; font-weight: 700; line-height: 1.25; padding-top: 2px; }
+  .info { grid-column: 2; }
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .tag { border: 0; background: var(--tag); color: var(--muted); border-radius: 8px; padding: 3px 9px; font-size: .8rem; }
+  .tag:hover { color: var(--text); }
+  .tag.on { background: var(--tag-on); color: var(--tag-on-ink); font-weight: 600; }
+  .dl {
+    grid-column: 1 / -1; margin-top: 8px; height: 42px; border-radius: 21px; border: 0;
+    background: var(--accent); color: var(--accent-ink); font-weight: 700;
+  }
+  .dl:active { filter: brightness(.92); }
+  .dl.done { background: var(--tag); color: var(--text); }
 
-  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 18px; }
-  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; }
-  .cover {
-    height: 92px; display: flex; align-items: flex-end; padding: 12px 16px;
-    background: var(--c1);
-    background-image: linear-gradient(135deg, var(--c1), var(--c2));
+  @media (min-width: 560px) {
+    .app { grid-template-columns: 56px 1fr auto; align-items: center; }
+    .info { grid-column: 2; }
+    .app h2 { grid-column: 2; grid-row: 1; }
+    .tile { grid-row: 1 / span 2; }
+    .dl { grid-column: 3; grid-row: 1 / span 2; margin-top: 0; padding: 0 24px; }
   }
-  .cover h2 { font-size: 1.3rem; font-weight: 800; letter-spacing: -0.01em; color: #fff; text-shadow: 0 1px 6px rgba(0,0,0,.35); line-height: 1.15; }
-  .body { padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 14px; flex: 1; }
-  dl { display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; font-size: .9rem; }
-  dt { color: var(--muted); }
-  dd { text-align: right; }
-  dd button {
-    background: none; border: 0; padding: 0; text-align: right; text-decoration: underline;
-    text-decoration-color: var(--line); text-underline-offset: 3px;
-  }
-  dd button:hover { text-decoration-color: var(--accent); color: var(--accent); }
-  .dl-btn {
-    margin-top: auto; width: 100%; padding: 11px; border-radius: 9px; border: 0;
-    background: var(--accent); color: var(--accent-ink); font-weight: 800; font-size: 1rem;
-    transition: transform .1s, filter .15s;
-  }
-  .dl-btn:hover { filter: brightness(1.08); }
-  .dl-btn:active { transform: scale(.98); }
-  .dl-btn.done { background: var(--panel-2); color: var(--text); }
 
-  .state { grid-column: 1 / -1; text-align: center; color: var(--muted); padding: 60px 10px; }
+  .state { text-align: center; padding: 56px 10px; color: var(--muted); }
   .state.err { color: var(--danger); }
+  .state button { margin-top: 14px; height: 38px; padding: 0 20px; border-radius: 19px; border: 1px solid var(--line); background: var(--surface); }
+  .state p + p { margin-top: 8px; font-size: .88rem; }
 
-  @media (max-width: 700px) {
-    .top { padding: 10px 12px 8px; }
-    .row-main { flex-direction: column; align-items: stretch; gap: 8px; }
-    .brand small { display: none; }
-    .group-name { flex-basis: 74px; }
-    main { padding: 14px 12px; }
+  /* Botón flotante de actualizar */
+  .fab {
+    position: fixed; right: 18px; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); z-index: 8;
+    width: 56px; height: 56px; border-radius: 28px; border: 0;
+    background: var(--accent); color: var(--accent-ink);
+    display: grid; place-items: center; box-shadow: 0 4px 14px rgba(0,0,0,.3);
   }
-  @media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
+  .fab svg { width: 24px; height: 24px; }
+  .fab:active { filter: brightness(.92); }
+  .fab.busy svg { animation: spin 1s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .toast {
+    position: fixed; left: 14px; right: 88px; bottom: calc(26px + env(safe-area-inset-bottom, 0px)); z-index: 8;
+    background: var(--text); color: var(--bg); padding: 10px 14px; border-radius: 12px; font-size: .9rem;
+  }
+  .toast[hidden] { display: none; }
+
+  dialog {
+    margin: auto; width: calc(100% - 28px); max-width: 420px; padding: 20px;
+    border: 1px solid var(--line); border-radius: 18px; background: var(--surface); color: var(--text);
+  }
+  dialog::backdrop { background: rgba(0,0,0,.55); }
+  dialog h3 { font-size: 1.05rem; margin-bottom: 8px; }
+  dialog p, dialog li { font-size: .9rem; color: var(--muted); }
+  dialog ol { margin: 10px 0 12px 20px; display: grid; gap: 4px; }
+  dialog a { color: var(--accent); }
+  dialog input {
+    width: 100%; height: 42px; padding: 0 12px; border-radius: 10px;
+    border: 1px solid var(--line); background: var(--bg);
+  }
+  dialog input:focus { outline: none; border-color: var(--accent); }
+  #dlg-err { color: var(--danger); margin-top: 8px; }
+  .dlg-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
+  .dlg-actions button { height: 40px; padding: 0 18px; border-radius: 20px; border: 1px solid var(--line); background: none; }
+  .dlg-actions .primary { background: var(--accent); color: var(--accent-ink); border-color: transparent; font-weight: 700; }
+  #forget { background: none; border: 0; color: var(--muted); font-size: .85rem; text-decoration: underline; margin-top: 12px; padding: 0; }
 </style>
 </head>
 <body>
 
-<header class="top">
-  <div class="top-inner">
-    <div class="row-main">
-      <div class="brand">POOG Store<small>J2ME → Android</small></div>
-      <div class="search" id="search-box">
-        <input id="q" type="search" placeholder="Buscar por nombre, desarrollador, año…" autocomplete="off" aria-label="Buscar juegos">
-        <button class="clear-x" id="clear-x" aria-label="Borrar búsqueda">×</button>
-      </div>
+<header>
+  <div class="wrap">
+    <h1>POOG Store</h1>
+    <div class="search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+      <input id="q" type="search" placeholder="Buscar juego, desarrollador, año…" autocomplete="off" aria-label="Buscar">
     </div>
     <div class="filters" id="filters"></div>
   </div>
 </header>
 
-<main>
-  <div id="notice"></div>
-  <div class="meta"><span id="count"></span><button id="reset" hidden>Quitar filtros</button></div>
-  <div class="grid" id="grid"><div class="state">Cargando catálogo…</div></div>
+<main class="wrap">
+  <div class="count" id="count"></div>
+  <div class="list" id="list"><div class="state">Cargando catálogo…</div></div>
 </main>
+
+<button class="fab" id="fab" aria-label="Actualizar catálogo" title="Actualizar catálogo">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg>
+</button>
+<div class="toast" id="toast" role="status" hidden></div>
+
+<dialog id="dlg">
+  <h3>Permitir actualizar el catálogo</h3>
+  <p>Para lanzar la actualización desde aquí hace falta un token de GitHub. Se guarda solo en este navegador.</p>
+  <ol>
+    <li><a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">Crea un token fine-grained</a></li>
+    <li>Repository access: solo este repositorio</li>
+    <li>Permissions: Actions → Read and write</li>
+  </ol>
+  <input id="tok" type="password" placeholder="github_pat_…" autocomplete="off" aria-label="Token de GitHub">
+  <p id="dlg-err" hidden></p>
+  <button id="forget" hidden>Olvidar el token guardado</button>
+  <div class="dlg-actions">
+    <button id="dlg-cancel">Cancelar</button>
+    <button id="dlg-ok" class="primary">Guardar y actualizar</button>
+  </div>
+</dialog>
 
 <script>
 /* ============ CONFIGURACIÓN ============ */
-const SOURCES = [
-  "https://gitflic.ru/project/lexusytg/poog/blob/raw?file=releases.md&branch=main",
-  "https://api.gitflic.ru/project/lexusytg/poog/blob?commitHash=main&file=releases.md",
+const GITFLIC_RAW = "https://gitflic.ru/project/lexusytg/poog/blob/raw?file=releases.md&branch=main";
+const GITFLIC_API = "https://api.gitflic.ru/project/lexusytg/poog/blob?commitHash=main&file=releases.md";
+
+// Orden de intentos: 1) copia sincronizada en este mismo sitio (sin CORS), 2) GitFlic directo, 3) vía proxy
+const getAttempts = () => [
+  "releases.md?t=" + Date.now(),
+  GITFLIC_RAW,
+  GITFLIC_API,
+  "https://corsproxy.io/?" + encodeURIComponent(GITFLIC_RAW),
+  "https://api.allorigins.win/raw?url=" + encodeURIComponent(GITFLIC_RAW),
 ];
-// Proxies CORS por si GitFlic bloquea la petición directa desde GitHub Pages
-const PROXIES = [
-  u => "https://corsproxy.io/?" + encodeURIComponent(u),
-  u => "https://api.allorigins.win/raw?url=" + encodeURIComponent(u),
-];
-// Campo del markdown -> clave interna
+
 const FIELDS = {
   "original developer": "vendor", "desarrollador original": "vendor",
   "release year": "year", "año": "year",
   "platform": "platform", "plataforma": "platform",
   "status": "status", "estado": "status",
 };
-// Grupos de filtro (etiquetas)
 const GROUPS = [
   { key: "vendor",   label: "Desarrollador" },
   { key: "year",     label: "Año" },
   { key: "platform", label: "Plataforma" },
   { key: "status",   label: "Estado" },
 ];
-// Copia local, se usa solo si no se puede leer releases.md
-const FALLBACK = `
-### 1. Diamond Rush
-*   **Original Developer:** Gameloft
-*   **Release Year:** 2006
-*   **Platform:** Java ME (J2ME)
-*   **Status:** Native Android Port
-*   **Download:** [📥 Download APK](https://gitflic.ru/project/lexusytg/poog/blob/raw?file=1-Diamond-Rush/release/Diamond-Rush-debug.apk&inline=false)
-### 2. Rally 3D
-*   **Original Developer:** Nokia
-*   **Release Year:** 2006
-*   **Platform:** Java ME (J2ME) / M3G
-*   **Status:** Native Android Port
-*   **Download:** [📥 Download APK](https://gitflic.ru/project/lexusytg/poog/blob/raw?file=2-Rally-3D/release/Rally-3D-debug.apk&inline=false)
-### 3. Tower Bloxx: My City
-*   **Original Developer:** Digital Chocolate
-*   **Release Year:** 2006
-*   **Platform:** Java ME (J2ME)
-*   **Status:** Native Android Port
-*   **Download:** [📥 Download APK](https://gitflic.ru/project/lexusytg/poog/blob/raw?file=3-Tower-Bloxx-My-City/release/Tower-Bloxx-My-City-debug.apk&inline=false)
-### 4. Crazy Penguin Catapult
-*   **Original Developer:** Connect2Media
-*   **Release Year:** 2008
-*   **Platform:** Java ME (J2ME)
-*   **Status:** Native Android Port
-*   **Download:** [📥 Download APK](https://gitflic.ru/project/lexusytg/poog/blob/raw?file=4-Crazy-Penguim-Catapult/release/Crazy-Penguim-Catapult-debug.apk&inline=false)
-### 5. Bounce Tales
-*   **Original Developer:** Rovio Mobile (Nokia)
-*   **Release Year:** 2008
-*   **Platform:** Java ME (J2ME)
-*   **Status:** Native Android Port
-*   **Download:** [📥 Download APK](https://gitflic.ru/project/lexusytg/poog/blob/raw?file=5-Bounce-Tales/release/Bounce-Tales-debug.apk&inline=false)
-`;
 
 /* ============ ESTADO ============ */
 let games = [];
-const active = {};            // { vendor: "Nokia", year: "2006", ... }
+const active = {};
 let query = "";
 
 const $ = id => document.getElementById(id);
@@ -196,48 +215,65 @@ const norm = s => String(s).toLowerCase().normalize("NFD").replace(/[\u0300-\u03
 
 /* ============ PARSEO ============ */
 function parse(md) {
+  md = md.replace(/\r/g, "");
   const out = [];
   md.split(/^###\s+/m).slice(1).forEach(block => {
     const lines = block.split("\n");
     const title = lines[0].replace(/^\d+\.\s*/, "").trim();
-    if (!title) return;
     const g = { title, vendor: "", year: "", platform: "", status: "", url: "" };
     for (const line of lines.slice(1)) {
-      const m = line.match(/^\s*[*-]\s*\*\*(.+?):\*\*\s*(.*)$/);
+      const m = line.match(/^\s*[*-]\s*\*\*(.+?):?\*\*:?\s*(.*)$/);
       if (!m) continue;
-      const name = m[1].trim().toLowerCase();
+      const name = m[1].replace(/:$/, "").trim().toLowerCase();
       if (FIELDS[name]) g[FIELDS[name]] = m[2].trim();
       else if (name === "download" || name === "descarga") {
         const l = m[2].match(/\]\((.+?)\)/);
         if (l) g.url = l[1].trim();
       }
     }
-    if (g.url) out.push(g);
+    if (title && g.url) out.push(g);
   });
   return out;
 }
 
-/* ============ CARGA ============ */
-async function tryFetch(url) {
-  const ctl = new AbortController();
-  const t = setTimeout(() => ctl.abort(), 8000);
+// Algunas fuentes (API) devuelven JSON con el contenido dentro
+function unwrap(text) {
+  const t = text.trim();
+  if (t[0] !== "{") return text;
   try {
-    const r = await fetch(url, { signal: ctl.signal });
-    if (!r.ok) throw new Error(r.status);
-    return await r.text();
-  } finally { clearTimeout(t); }
+    const j = JSON.parse(t);
+    const c = j.content ?? j.data?.content ?? j.text;
+    if (typeof c !== "string") return text;
+    if (c.includes("###")) return c;
+    return new TextDecoder().decode(Uint8Array.from(atob(c.replace(/\s/g, "")), ch => ch.charCodeAt(0)));
+  } catch { return text; }
 }
 
-async function load() {
-  const attempts = [];
-  SOURCES.forEach(s => { attempts.push(s); PROXIES.forEach(p => attempts.push(p(s))); });
-  for (const url of attempts) {
+/* ============ CARGA ============ */
+async function fetchText(url, headers) {
+  const ctl = new AbortController();
+  const timer = setTimeout(() => ctl.abort(), 9000);
+  try {
+    const r = await fetch(url, { signal: ctl.signal, cache: "no-store", headers });
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    return await r.text();
+  } finally { clearTimeout(timer); }
+}
+
+async function loadCatalog(fresh = false) {
+  const sources = getAttempts().map(url => ({ url }));
+  // Tras actualizar, se lee por la API de GitHub: está al día sin esperar al despliegue de Pages
+  if (fresh && getToken()) sources.unshift({
+    url: `https://api.github.com/repos/${REPO.owner}/${REPO.name}/contents/releases.md?ref=${REPO.branch}`,
+    headers: { Accept: "application/vnd.github.raw+json", Authorization: "Bearer " + getToken() },
+  });
+  for (const { url, headers } of sources) {
     try {
-      const list = parse(await tryFetch(url));
-      if (list.length) return { list, live: true };
-    } catch (e) { /* siguiente intento */ }
+      const list = parse(unwrap(await fetchText(url, headers)));
+      if (list.length) return list;
+    } catch (e) { console.warn("Fuente fallida:", url, e.message); }
   }
-  return { list: parse(FALLBACK), live: false };
+  throw new Error("Ninguna fuente respondió con un catálogo válido");
 }
 
 /* ============ FILTROS ============ */
@@ -246,102 +282,173 @@ function buildFilters() {
   box.innerHTML = "";
   GROUPS.forEach(({ key, label }) => {
     const values = [...new Set(games.map(g => g[key]).filter(Boolean))].sort();
-    if (values.length < 2) return;       // un grupo con un solo valor no filtra nada
-    const row = document.createElement("div");
-    row.className = "group";
-    row.innerHTML = `<span class="group-name">${label}</span><div class="chips" role="group" aria-label="${label}"></div>`;
-    const chips = row.querySelector(".chips");
-    values.forEach(v => {
-      const b = document.createElement("button");
-      b.className = "chip"; b.textContent = v;
-      b.dataset.key = key; b.dataset.value = v;
-      b.setAttribute("aria-pressed", "false");
-      chips.appendChild(b);
-    });
-    box.appendChild(row);
+    if (values.length < 2) return;
+    const sel = document.createElement("select");
+    sel.dataset.key = key;
+    sel.setAttribute("aria-label", label);
+    sel.innerHTML = `<option value="">${label}</option>` + values.map(v => `<option>${esc(v)}</option>`).join("");
+    sel.addEventListener("change", () => { sel.value ? active[key] = sel.value : delete active[key]; render(); });
+    box.appendChild(sel);
   });
-}
-
-function toggleFilter(key, value) {
-  if (active[key] === value) delete active[key]; else active[key] = value;
-  render();
+  const clear = document.createElement("button");
+  clear.className = "clear"; clear.id = "clear"; clear.textContent = "Limpiar"; clear.hidden = true;
+  clear.addEventListener("click", () => {
+    Object.keys(active).forEach(k => delete active[k]);
+    $("q").value = ""; query = ""; render();
+  });
+  box.appendChild(clear);
 }
 
 /* ============ RENDER ============ */
-function hue(str) { let h = 0; for (const c of str) h = (h * 31 + c.charCodeAt(0)) % 360; return h; }
+function hue(s) { let h = 0; for (const c of s) h = (h * 31 + c.charCodeAt(0)) % 360; return h; }
 
 function render() {
-  // chips
-  document.querySelectorAll(".chip").forEach(c =>
-    c.setAttribute("aria-pressed", active[c.dataset.key] === c.dataset.value));
-
+  document.querySelectorAll(".filters select").forEach(s => {
+    s.value = active[s.dataset.key] || "";
+    s.classList.toggle("on", !!s.value);
+  });
   const q = norm(query.trim());
   const shown = games.filter(g =>
     Object.entries(active).every(([k, v]) => g[k] === v) &&
     (!q || norm([g.title, g.vendor, g.year, g.platform, g.status].join(" ")).includes(q)));
 
-  const hasFilters = Object.keys(active).length || q;
-  $("reset").hidden = !hasFilters;
-  $("count").textContent = `${shown.length} de ${games.length} juegos`;
+  const clear = $("clear");
+  if (clear) clear.hidden = !(Object.keys(active).length || q);
+  $("count").textContent = shown.length === 1 ? "1 juego" : shown.length + " juegos";
 
-  const grid = $("grid");
   if (!shown.length) {
-    grid.innerHTML = `<div class="state">No hay juegos con esos filtros. Prueba a quitar alguno.</div>`;
+    $("list").innerHTML = `<div class="state">Ningún juego coincide con los filtros.</div>`;
     return;
   }
-  grid.innerHTML = shown.map(g => {
-    const i = games.indexOf(g), h = hue(g.title);
-    const rows = [["Desarrollador", "vendor"], ["Año", "year"], ["Plataforma", "platform"], ["Estado", "status"]]
-      .filter(([, k]) => g[k])
-      .map(([l, k]) => `<dt>${l}</dt><dd><button data-key="${k}" data-value="${esc(g[k])}" title="Filtrar por ${esc(g[k])}">${esc(g[k])}</button></dd>`)
-      .join("");
-    return `<article class="card">
-      <div class="cover" style="--c1:hsl(${h} 45% 32%);--c2:hsl(${(h + 50) % 360} 50% 22%)"><h2>${esc(g.title)}</h2></div>
-      <div class="body">
-        <dl>${rows}</dl>
-        <button class="dl-btn" data-dl="${i}">Descargar</button>
-      </div>
+  $("list").innerHTML = shown.map(g => {
+    const tags = GROUPS.filter(({ key }) => g[key]).map(({ key }) =>
+      `<button class="tag ${active[key] === g[key] ? "on" : ""}" data-key="${key}" data-value="${esc(g[key])}">${esc(g[key])}</button>`).join("");
+    return `<article class="app">
+      <div class="tile" style="--h:${hue(g.title)}">${esc(g.title.charAt(0).toUpperCase())}</div>
+      <h2>${esc(g.title)}</h2>
+      <div class="info"><div class="tags">${tags}</div></div>
+      <button class="dl" data-i="${games.indexOf(g)}">Descargar</button>
     </article>`;
   }).join("");
 }
 
 /* ============ EVENTOS ============ */
 document.addEventListener("click", e => {
-  const chip = e.target.closest(".chip");
-  if (chip) return toggleFilter(chip.dataset.key, chip.dataset.value);
-
-  const link = e.target.closest("dd button");
-  if (link) return toggleFilter(link.dataset.key, link.dataset.value);
-
-  const dl = e.target.closest("[data-dl]");
+  const tag = e.target.closest(".tag");
+  if (tag) {
+    const { key, value } = tag.dataset;
+    active[key] === value ? delete active[key] : active[key] = value;
+    return render();
+  }
+  const dl = e.target.closest(".dl");
   if (dl) {
-    const g = games[+dl.dataset.dl];
-    window.open(g.url, "_blank", "noopener");     // el enlace nunca aparece en el HTML
+    window.open(games[+dl.dataset.i].url, "_blank", "noopener");
     dl.textContent = "Descarga iniciada"; dl.classList.add("done");
     setTimeout(() => { dl.textContent = "Descargar"; dl.classList.remove("done"); }, 2500);
   }
 });
+$("q").addEventListener("input", e => { query = e.target.value; render(); });
 
-$("q").addEventListener("input", e => {
-  query = e.target.value;
-  $("search-box").classList.toggle("has-text", !!query);
-  render();
-});
-$("clear-x").addEventListener("click", () => { $("q").value = ""; query = ""; $("search-box").classList.remove("has-text"); $("q").focus(); render(); });
-$("reset").addEventListener("click", () => {
-  Object.keys(active).forEach(k => delete active[k]);
-  $("q").value = ""; query = ""; $("search-box").classList.remove("has-text"); render();
+/* ============ ACTUALIZAR (dispara el workflow de GitHub) ============ */
+const onPages = location.hostname.endsWith(".github.io");
+const REPO = {
+  owner: onPages ? location.hostname.split(".")[0] : "lexusytg",
+  name: onPages ? (location.pathname.split("/")[1] || location.hostname) : "POOG-Portal",
+  branch: "main",                    // rama donde vive el workflow
+  workflow: "sync-releases.yml",
+};
+const TOKEN_KEY = "poog_gh_token";
+const getToken = () => { try { return localStorage.getItem(TOKEN_KEY) || ""; } catch { return ""; } };
+const setToken = t => { try { t ? localStorage.setItem(TOKEN_KEY, t) : localStorage.removeItem(TOKEN_KEY); } catch {} };
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+let busy = false, toastTimer;
+
+function toast(msg, ms = 0) {
+  const t = $("toast");
+  clearTimeout(toastTimer);
+  t.textContent = msg; t.hidden = false;
+  if (ms) toastTimer = setTimeout(() => { t.hidden = true; }, ms);
+}
+
+async function gh(path, token, opts = {}) {
+  const r = await fetch(`https://api.github.com/repos/${REPO.owner}/${REPO.name}${path}`, {
+    ...opts,
+    headers: { Accept: "application/vnd.github+json", Authorization: "Bearer " + token, "X-GitHub-Api-Version": "2022-11-28" },
+  });
+  if (!r.ok) { const e = new Error("HTTP " + r.status); e.status = r.status; throw e; }
+  return r;
+}
+
+async function latestRun(token) {
+  const r = await gh(`/actions/workflows/${REPO.workflow}/runs?event=workflow_dispatch&per_page=1`, token);
+  return (await r.json()).workflow_runs?.[0] || null;
+}
+
+function askToken(error = "") {
+  $("tok").value = "";
+  $("dlg-err").hidden = !error; $("dlg-err").textContent = error;
+  $("forget").hidden = !getToken();
+  $("dlg").showModal();
+}
+
+async function updateCatalog() {
+  if (busy) return;
+  const token = getToken();
+  if (!token) return askToken();
+  busy = true; $("fab").classList.add("busy");
+  try {
+    toast("Lanzando actualización…");
+    const before = await latestRun(token);
+    await gh(`/actions/workflows/${REPO.workflow}/dispatches`, token, { method: "POST", body: JSON.stringify({ ref: REPO.branch }) });
+    toast("Actualizando… puede tardar un minuto");
+    let finished = false;
+    for (let i = 0; i < 45 && !finished; i++) {
+      await sleep(4000);
+      const run = await latestRun(token);
+      if (run && run.id !== before?.id && run.status === "completed") {
+        if (run.conclusion !== "success") throw new Error("El workflow terminó con error. Revisa la pestaña Actions del repositorio.");
+        finished = true;
+      }
+    }
+    if (!finished) throw new Error("La actualización tarda demasiado. Revisa la pestaña Actions.");
+    const prev = JSON.stringify(games);
+    games = await loadCatalog(true);
+    buildFilters(); render();
+    toast(JSON.stringify(games) === prev ? "El catálogo ya estaba al día" : "Catálogo actualizado", 4000);
+  } catch (e) {
+    if ([401, 403].includes(e.status)) { setToken(""); toast("", 1); askToken("GitHub rechazó el token. Comprueba que tenga permiso Actions: Read and write sobre este repositorio."); }
+    else if (e.status === 404) toast(`No se encontró ${REPO.workflow} en ${REPO.owner}/${REPO.name} (rama ${REPO.branch}).`, 7000);
+    else if (e.status === 422) toast("El workflow no admite ejecución manual o la rama no existe.", 7000);
+    else toast(e.message || "No se pudo actualizar.", 7000);
+  } finally {
+    busy = false; $("fab").classList.remove("busy");
+  }
+}
+
+$("fab").addEventListener("click", updateCatalog);
+$("dlg-cancel").addEventListener("click", () => $("dlg").close());
+$("forget").addEventListener("click", () => { setToken(""); $("dlg").close(); toast("Token olvidado", 3000); });
+$("dlg-ok").addEventListener("click", () => {
+  const t = $("tok").value.trim();
+  if (!t) { $("dlg-err").textContent = "Pega el token primero."; $("dlg-err").hidden = false; return; }
+  setToken(t); $("dlg").close(); updateCatalog();
 });
 
 /* ============ INICIO ============ */
-load().then(({ list, live }) => {
-  games = list;
-  if (!live) $("notice").innerHTML = `<div class="notice">No se pudo leer releases.md de GitFlic desde el navegador; se muestra la copia incluida en esta página.</div>`;
-  buildFilters();
-  render();
-}).catch(() => {
-  $("grid").innerHTML = `<div class="state err">No se pudo cargar el catálogo. Recarga la página.</div>`;
-});
+function start() {
+  $("list").innerHTML = `<div class="state">Cargando catálogo…</div>`;
+  loadCatalog().then(list => {
+    games = list; buildFilters(); render();
+  }).catch(() => {
+    $("count").textContent = "";
+    $("list").innerHTML = `<div class="state err">
+      <p>No se pudo cargar releases.md.</p>
+      <p>Comprueba que el workflow de sincronización haya creado el archivo en este repositorio.</p>
+      <button id="retry">Reintentar</button></div>`;
+    $("retry").onclick = start;
+  });
+}
+start();
 </script>
 </body>
 </html>

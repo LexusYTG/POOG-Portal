@@ -1,0 +1,30 @@
+name: Sync releases.md from GitFlic
+
+on:
+  schedule:
+    - cron: "0 */6 * * *"   # cada 6 horas
+  workflow_dispatch:         # botón manual en la pestaña Actions
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download releases.md
+        run: |
+          curl -fsSL --retry 3 -A "Mozilla/5.0" \
+            "https://gitflic.ru/project/lexusytg/poog/blob/raw?file=releases.md&branch=main" \
+            -o releases.tmp
+          grep -q '^###' releases.tmp   # falla si no es el markdown esperado
+          mv releases.tmp releases.md
+
+      - name: Commit if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add releases.md
+          git diff --cached --quiet || (git commit -m "Sync releases.md from GitFlic" && git push)
