@@ -6,14 +6,9 @@
     <title>POOG Store - J2ME Android Ports</title>
     <style>
         :root {
-            --bg-main: #0d1117;
-            --bg-panel: #161b22;
-            --bg-card: #21262d;
-            --text-main: #c9d1d9;
-            --text-muted: #8b949e;
-            --primary: #58a6ff;
-            --accent: #238636;
-            --border: #30363d;
+            --bg-main: #0d1117; --bg-panel: #161b22; --bg-card: #21262d;
+            --text-main: #c9d1d9; --text-muted: #8b949e; --primary: #58a6ff;
+            --accent: #238636; --border: #30363d;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; }
         body { background-color: var(--bg-main); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
@@ -41,7 +36,6 @@
         .btn-download { display: block; text-align: center; background-color: var(--accent); color: white; text-decoration: none; padding: 10px; border-radius: 6px; font-weight: bold; transition: background-color 0.2s; }
         .btn-download:hover { background-color: #2ea043; }
         
-        /* Loader */
         #loader { grid-column: 1 / -1; text-align: center; margin-top: 50px; color: var(--text-muted); font-size: 1.2rem; }
 
         @media (max-width: 768px) {
@@ -78,13 +72,11 @@
         const catalog = document.getElementById("catalog");
         const searchInput = document.getElementById("search-input");
 
-        // URL RAW del archivo releases.md en GitFlic (Asegurate de que sea la correcta)
+        // URL directa al archivo releases.md
         const RELEASES_URL = "https://gitflic.ru/project/lexusytg/poog/blob/raw?file=releases.md&inline=false";
 
-        // Función para parsear el Markdown y extraer los datos
         function parseMarkdown(md) {
             const games = [];
-            // Expresión regular para buscar cada bloque de juego
             const gameRegex = /###\s*\d+\.\s*(.*?)\n\s*\*\s*\*\*Original Developer:\*\*\s*(.*?)\n\s*\*\s*\*\*Release Year:\*\*\s*(.*?)\n\s*\*\s*\*\*Platform:\*\*\s*(.*?)\n[\s\S]*?\[.*?\]\((.*?)\)/g;
             
             let match;
@@ -100,17 +92,24 @@
             return games;
         }
 
-        // Función para obtener los datos
         async function fetchCatalog() {
             try {
-                const response = await fetch(RELEASES_URL);
-                if (!response.ok) throw new Error("Network response was not ok");
-                const markdown = await response.text();
+                // Intentar fetch directo
+                let response = await fetch(RELEASES_URL);
                 
+                // Si falla por CORS, usar un proxy
+                if (!response.ok) {
+                    console.log("Direct fetch failed, trying CORS proxy...");
+                    response = await fetch(`https://corsproxy.io/?${encodeURIComponent(RELEASES_URL)}`);
+                }
+
+                if (!response.ok) throw new Error("Network response was not ok");
+                
+                const markdown = await response.text();
                 allGames = parseMarkdown(markdown);
                 
                 if (allGames.length === 0) {
-                    catalog.innerHTML = `<p style="grid-column: 1 / -1; text-align: center;">Error: Could not parse games. Check the format in releases.md.</p>`;
+                    catalog.innerHTML = `<p style="grid-column: 1 / -1; text-align: center;">Error: Could not parse games. Check the Markdown format in releases.md.</p>`;
                     return;
                 }
 
@@ -119,7 +118,7 @@
 
             } catch (error) {
                 console.error("Error fetching catalog:", error);
-                catalog.innerHTML = `<p style="grid-column: 1 / -1; text-align: center; color: #f85149;">Failed to load catalog. The GitFlic repository might be private or the URL is incorrect.</p>`;
+                catalog.innerHTML = `<p style="grid-column: 1 / -1; text-align: center; color: #f85149;">Failed to load catalog. Check if the GitFlic repo is public.</p>`;
             }
         }
 
@@ -184,7 +183,6 @@
             renderGames();
         });
 
-        // Iniciar
         fetchCatalog();
     </script>
 </body>
